@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ربات روبیکا داتافر پرو</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0b0f19;
+            color: #fff;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+        .header {
+            background: #111827;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #2d3748;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            z-index: 10;
+            flex-wrap: wrap;
+        }
+        .brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #00e676;
+            cursor: pointer;
+        }
+        .brand i { margin-left: 0.4rem; }
+        .nav {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            font-size: 1.1rem;
+        }
+        .nav a {
+            text-decoration: none;
+            color: #cbd5e0;
+            padding: 0.5rem 0.8rem;
+            border-radius: 8px;
+            transition: all 0.3s;
+            border: 1px solid transparent;
+            white-space: nowrap;
+        }
+        .nav a i { margin-left: 0.3rem; }
+        .nav .separator {
+            color: #4b5563;
+            margin: 0 0.2rem;
+            user-select: none;
+        }
+        .nav a:hover {
+            color: #fff;
+            background: #1e293b;
+            border-color: #00e676;
+        }
+        .nav a.active {
+            color: #00e676;
+            border-color: #00e676;
+            background: rgba(0, 230, 118, 0.1);
+        }
+        .main-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            perspective: 1200px;
+        }
+        .content-wrapper {
+            width: 100%;
+            max-width: 800px;
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-style: preserve-3d;
+            margin: 0 1rem;
+        }
+        .content-wrapper.rotate-zoom {
+            transform: rotateY(360deg) scale(0.85);
+        }
+        .content-wrapper.mobile-effect {
+            transform: scale(0.9);
+            opacity: 0.5;
+            transition: transform 0.5s, opacity 0.5s;
+        }
+        .content-wrapper.reset {
+            transition: transform 0.8s, opacity 0.8s;
+            transform: rotateY(0deg) scale(1);
+            opacity: 1;
+        }
+        .placeholder-text {
+            font-size: 1.8rem;
+            color: #a0aec0;
+            opacity: 0.7;
+            text-align: center;
+        }
+        .content-box {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(12px);
+            padding: 2rem;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+            width: 100%;
+            text-align: right;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+        .content-box h2 {
+            color: #00e676;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+        .content-box h2 i { margin-left: 0.5rem; }
+        .btn {
+            display: inline-block;
+            margin-top: 1.5rem;
+            background: #00c853;
+            color: #000;
+            padding: 0.7rem 2rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        .btn:hover { background: #00e676; }
+        .guide-subnav {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .guide-subnav a {
+            padding: 0.5rem 1.2rem;
+            background: #1e293b;
+            border-radius: 8px;
+            text-decoration: none;
+            color: #cbd5e0;
+            transition: all 0.3s;
+            font-size: 1rem;
+            border: 1px solid transparent;
+        }
+        .guide-subnav a.active,
+        .guide-subnav a:hover {
+            background: #00e676;
+            color: #000;
+        }
+        /* Accordion */
+        .accordion-item { margin-bottom: 8px; }
+        .accordion-header {
+            cursor: pointer;
+            padding: 10px 15px;
+            width: 100%;
+            text-align: right;
+            background: #1e293b;
+            border: none;
+            outline: none;
+            color: #cbd5e0;
+            font-size: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 8px;
+            transition: background 0.3s;
+            font-family: inherit;
+        }
+        .accordion-header:hover { background: #2d3748; }
+        .accordion-header i {
+            transition: transform 0.3s;
+            font-size: 0.9rem;
+        }
+        .accordion-header.active {
+            border-radius: 8px 8px 0 0;
+            background: #2d3748;
+        }
+        .accordion-header.active i {
+            transform: rotate(90deg);
+        }
+        .accordion-panel {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            background: rgba(255,255,255,0.03);
+            border-radius: 0 0 8px 8px;
+            padding: 0 15px;
+            margin-bottom: 0;
+        }
+        .accordion-panel p {
+            margin: 10px 0;
+            color: #e2e8f0;
+            line-height: 1.8;
+            font-size: 0.95rem;
+        }
+        .accordion-panel code {
+            background: #1e293b;
+            padding: 2px 8px;
+            border-radius: 5px;
+            font-family: monospace;
+            direction: ltr;
+            display: inline-block;
+        }
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+            .nav {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 0.3rem;
+            }
+            .nav .separator { display: none; }
+            .placeholder-text { font-size: 1.4rem; }
+            .content-box { padding: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="brand" id="brandLogo">
+            <i class="fas fa-robot"></i> ربات روبیکا داتافر پرو
+        </div>
+        <nav class="nav" id="mainNav">
+            <a href="#" data-page="guide"><i class="fas fa-book"></i> راهنمای ربات</a>
+            <span class="separator">ــــ</span>
+            <a href="#" data-page="token"><i class="fas fa-key"></i> راهنمای ربات توکنی</a>
+            <span class="separator">ــــ</span>
+            <a href="#" data-page="buy"><i class="fas fa-shopping-cart"></i> خرید فایل ربات</a>
+            <span class="separator">ــــ</span>
+            <a href="#" data-page="custom"><i class="fas fa-cogs"></i> سفارش پروژه</a>
+        </nav>
+    </header>
+
+    <div class="main-container">
+        <div class="content-wrapper" id="contentWrapper">
+            <div id="placeholderContent">
+                <div class="placeholder-text">یکی از گزینه‌های بالا را انتخاب کنید</div>
+            </div>
+
+            <!-- راهنمای ربات معمولی (همان قبلی) -->
+            <div id="guideContent" style="display: none;">
+                <div class="content-box">
+                    <div class="guide-subnav" id="guideSubNav">
+                        <a href="#" class="sub-tab active" data-guide="management">راهنما مدیریت</a>
+                        <a href="#" class="sub-tab" data-guide="fun">راهنما سرگرمی</a>
+                        <a href="#" class="sub-tab" data-guide="maker">راهنما سازنده</a>
+                        <a href="#" class="sub-tab" data-guide="game">راهنما گیم بات</a>
+                    </div>
+
+                    <!-- مدیریت -->
+                    <div class="sub-content" id="guide-management">
+                        <h2><i class="fas fa-user-cog"></i> راهنمای مدیریت</h2>
+                        <div class="accordion-item"><button class="accordion-header"><i class="fas fa-chevron-left"></i> سکوت / حذف سکوت</button><div class="accordion-panel"><p>کاربر را سکوت می‌کند (نمی‌تواند پیام بدهد).</p><p><strong>مثال:</strong> <code>سکوت @username</code><br>برای خارج کردن: <code>حذف سکوت @username</code></p></div></div>
+                        <div class="accordion-item"><button class="accordion-header"><i class="fas fa-chevron-left"></i> معاف / حذف معاف</button><div class="accordion-panel"><p>کاربر را از تمام فیلترها معاف می‌کند.</p><p><strong>مثال:</strong> <code>معاف @username</code><br>لغو: <code>حذف معاف @username</code></p></div></div>
+                        <div class="accordion-item"><button class="accordion-header"><i class="fas fa-chevron-left"></i> کیل / حذف کیل</button><div class="accordion-panel"><p>کاربر را بن کرده و در صورت ورود مجدد اخراج می‌کند.</p><p><strong>مثال:</strong> <code>کیل @username</code><br>حذف از لیست: <code>حذف کیل @username</code></p></div></div>
+                        <div class="accordion-item"><button class="accordion-header"><i class="fas fa-chevron-left"></i> بن / انبن</button><div class="accordion-panel"><p>کاربر را بن (اخراج دائمی) می‌کند.</p><p><strong>مثال:</strong> <code>بن</code> (ریپلای روی پیام کاربر)<br>آزادسازی: <code>انبن @username</code></p></div></div>
+                        <div class="accordion-item"><button class="accordion-header"><i class="fas fa-chevron-left"></i> اخطار / تنظیم حد اخطار</button><div class="accordion-panel"><p>یک اخطار به کاربر اضافه می‌کند. با رسیدن به حد مجاز (پیش‌فرض 3) کاربر بن می‌شود.</p><p><strong>مثال:</strong> <code>اخطار</code> (ریپلای)<br>تعیین حد: <code>تنظیم حد اخطار 5</code></p></div></div>
+                        <div class="accordion-item"><button class="accordion-header"><i class="fas fa-chevron-left"></i> حذف اخطار</button><div class="accordion-panel"><p>همه اخطارهای کاربر را پاک می‌کند.</p><p><strong>مثال:</strong> <code>حذف اخطار @username</code></p></div></div>
+                        <div class="accordion-item"><button class="accordion-header"><i class="fas fa-chevron-left"></i> تایمر حذف</button><div class="accordion-panel"><p>زمان حذف خودکار پیام‌های ربات را تنظیم می‌کند.</p><p><strong>مثال:</strong> <code>تایمر حذف 10 ثانیه</code> یا <code>تایمر حذف 2 دقیقه</code></p></div></div>
+                        <div class="accordion-item"><button class="accordion-header"><i class="fas fa-chevron-left"></i> ثبت قوانین / قوانین</button><div class="accordion-panel"><p>قوانین گروه را ثبت و نمایش می‌دهد.</p><p><strong>مثال:</strong> ریپلای روی متن قوانین ← <code>ثبت قوانین</code><br>نمایش: <code>قوانین</code></p></div></div>
+                        <div class="accordion-item"><button class="accordion-header"><i class="fas fa-chevron-left"></i> تنظیم خداحافظی</button><div class="accordion-panel"><p>متن پیام خداحافظی هنگام ترک عضو را تنظیم می‌کند.</p><p><strong>مثال:</strong> ریپلای روی متن ← <code>تنظیم خداحافظی</code></p></div></div>
+                        <div class="accordion-item"><button class="accordion-header"><i class="fas fa-chevron-left"></i> پین</button><div class="accordion-panel"><p>پیام ریپلای شده را سنجاق می‌کند.</p><p><strong>مثال:</strong> ریپلای روی پیام ← <code>پین</code></p></div></div>
+                        <div class="accordion-item"><button class="accordion-header"><i class="fas fa-chevron-left"></i> لینک</button><div class="accordion-panel"><p>لینک دعوت گروه را نمایش می‌دهد.</p><p><strong>مثال:</strong> <code>لینک</code></p></div></div>
+                        <div class="accordion-item"><button class="accordion-header"><i class="fas fa-chevron-left"></i> قفل / باز</button><div class="accordion-panel"><p>گروه را از ارسال پیام توسط اعضا قفل/باز می‌کند.</p><p><strong>مثال:</strong> <code>قفل</code> یا <code>باز</code></p></div></div>
+                        <div class="accordion-item"><button class="accordion-header"><i class="fas fa-chevron-left"></i> حذف پیام / پاکسازی گروه</button><div class="accordion-panel"><p>تعداد مشخصی پیام را حذف می‌کند.</p><p><strong>مثال:</strong> <code>حذف پیام 50</code><br>پاکسازی کامل: <code>پاکسازی گروه</code></p></div></div>
+                        <div class="accordion-item"><button class="accordion-header"><i class="fas fa-chevron-left"></i> پاکسازی بن</button><div class="accordion-panel"><p>تمام کاربران بن شده را آزاد می‌کند.</p><p><strong>مثال:</strong> <code>پاکسازی بن</code></p></div></div>
+                        <div class="accordion-item"><button class="accordion-header"><i class="fas fa-chevron-left"></i> لیست‌ها و پاکسازی آن‌ها</button><div class="accordion-panel"><p>نمایش و پاکسازی لیست‌های: سکوت، معاف، کیل، اخطار، مالک، ویژه.</p><p><strong>مثال:</strong> <code>لیست سکوت</code> , <code>پاکسازی سکوت</code><br><code>لیست معاف</code> , <code>پاکسازی معاف</code></p></div></div>
+                        <div class="accordion-item"><button class="accordion-header"><i class="fas fa-chevron-left"></i> فیلترها (افزودن / حذف / لیست)</button><div class="accordion-panel"><p>مدیریت کلمات فیلترشده. هر پیام حاوی این کلمات پاک می‌شود.</p><p><strong>مثال:</strong> <code>افزودن فیلتر کلمه1 کلمه2</code><br><code>حذف فیلتر کلمه</code> , <code>لیست فیلترها</code></p></div></div>
+                        <div class="accordion-item"><button class="accordion-header"><i class="fas fa-chevron-left"></i> تغییر وضعیت فیلترها</button><div class="accordion-panel"><p>چند فیلتر را هم‌زمان روشن/خاموش می‌کند.</p><p><strong>مثال:</strong> <code>تغییر وضعیت فیلتر لینک فیلتر فوروارد فیلتر فارسی</code></p></div></div>
+                        <div class="accordion-item"><button class="accordion-header"><i class="fas fa-chevron-left"></i> قفل / بازکردن فیلترها</button><div class="accordion-panel"><p>همه فیلترها را یکجا فعال یا غیرفعال می‌کند.</p><p><strong>مثال:</strong> <code>قفل فیلترها</code> , <code>بازکردن فیلترها</code></p></div></div>
+                        <div class="accordion-item"><button class="accordion-header"><i class="fas fa-chevron-left"></i> یادگیری</button><div class="accordion-panel"><p>ربات یاد می‌گیرد به یک عبارت پاسخ دهد.</p><p><strong>مثال:</strong> <code>یادبگیر جانم</code> (ریپلای روی کلمه کلیدی)<br><code>لیست یادگیری</code> , <code>حذف یادگیری کلید</code> , <code>پاکسازی یادگیری</code></p></div></div>
+                    </div>
+
+                    <!-- سرگرمی -->
+                    <div class="sub-content" id="guide-fun" style="display: none;">
+                        <h2><i class="fas fa-smile"></i> راهنما سرگرمی</h2>
+                        <div class="accordion-item"><button class="accordion-header"><i class="fas fa-chevron-left"></i> فال / جوک / سخن / دیالوگ / داستان / بیو</button><div class="accordion-panel"><p>دریافت فال تصویری، جوک، جمله انگیزشی، دیالوگ و داستان کوتاه.</p><p><strong>مثال:</strong> <code>فال</code> , <code>جوک</code> , <code>سخن</code> , <code>دیالوگ</code> , <code>داستان</code> , <code>بیو</code> (ریپلای)</p></div></div>
+                        <div class="accordion-item"><button class="accordion-header"><i class="fas fa-chevron-left"></i> برعکس / فونت / عدد</button><div class="accordion-panel"><p>برعکس کردن متن، فونت‌های متنوع و تبدیل عدد به حروف.</p><p><strong>مثال:</strong> <code>برعکس سلام</code> , <code>فونت علی</code> , <code>عدد ۱۰۰</code></p></div></div>
+                        <div class="accordion-item"><button class="accordion-header"><i class="fas fa-chevron-left"></i> اطلاعات تولد / فاصله / ذکر / استخاره / روز / تاریخ</button><div class="accordion-panel"><p>جزئیات تولد، فاصله شهرها، ذکر روزانه، استخاره آنلاین، تاریخ امروز.</p><p><strong>مثال:</strong> <code>اطلاعات تولد 31 2 1385</code> , <code>فاصله تهران مشهد</code> , <code>ذکر</code> , <code>استخاره</code> , <code>روز</code> , <code>تاریخ</code></p></div></div>
+                        <div class="accordion-item"><button class="accordion-header"><i class="fas fa-chevron-left"></i> هواشناسی / اخبار / بورس / طلا / ارز / قیمت ارز</button><div class="accordion-panel"><p>آب و هوا، اخبار، نرخ بورس، طلا و ارزهای دیجیتال.</p><p><strong>مثال:</strong> <code>هواشناسی تهران</code> , <code>اخبار</code> , <code>بورس</code> , <code>طلا</code> , <code>ارز</code> , <code>قیمت ارز btc</code></p></div></div>
+                        <div class="accordion-item"><button class="accordion-header"><i class="fas fa-chevron-left"></i> ویکی / پروکسی / ساخت تصویر / ساخت انیمه</button><div class="accordion-panel"><p>جستجوی ویکی‌پدیا، پروکسی رایگان، ساخت تصویر با هوش مصنوعی و انیمه.</p><p><strong>مثال:</strong> <code>ویکی ایران</code> , <code>پروکسی</code> , <code>ساخت تصویر منظره</code> , <code>ساخت انیمه</code></p></div></div>
+                        <div class="accordion-item"><button class="accordion-header"><i class="fas fa-chevron-left"></i> هخامنش / ویس / تحلیل / کال</button><div class="accordion-panel"><p>دستیار صوتی، تبدیل متن به ویس، تحلیل تصویر و ایجاد ویس‌کال.</p><p><strong>مثال:</strong> <code>هخامنش سلام</code> , <code>ویس متن</code> , <code>تحلیل</code> (ریپلای روی عکس) , <code>کال</code> (گروه)</p></div></div>
+                        <div class="accordion-item"><button class="accordion-header"><i class="fas fa-chevron-left"></i> اینستا / روبینو / گوید / bmi / مورس / باستان</button><div class="accordion-panel"><p>دانلود از اینستاگرام و روبینو، نمایش GUID، محاسبه BMI، کد مورس و خطوط باستانی.</p><p><strong>مثال:</strong> <code>اینستا لینک_پست</code> , <code>روبینو لینک_ویدیو</code> , <code>گوید</code> , <code>bmi:w=70,h=1.75</code> , <code>مورس سلام</code> , <code>باستانی سلام</code></p></div></div>
+                        <div class="accordion-item"><button class="accordion-header"><i class="fas fa-chevron-left"></i> نظرسنجی / چالش</button><div class="accordion-panel"><p>ایجاد نظرسنجی چهارگزینه‌ای و چالش تصادفی با ریپلای روی کاربر.</p><p><strong>مثال:</strong> <code>نظرسنجی</code> , <code>چالش</code> (ریپلای روی کاربر)</p></div></div>
+                    </div>
+
+                    <!-- سازنده -->
+                    <div class="sub-content" id="guide-maker" style="display: none;">
+                        <h2><i class="fas fa-hammer"></i> راهنما سازنده</h2>
+                        <div class="accordion-item"><button class="accordion-header"><i class="fas fa-chevron-left"></i> سازنده (ثبت خود)</button><div class="accordion-panel"><p>خود را به عنوان سازنده ربات ثبت می‌کند (در پیوی).</p><p><strong>مثال:</strong> <code>سازنده</code></p></div></div>
+                        <div class="accordion-item"><button class="accordion-header"><i class="fas fa-chevron-left"></i> مالک / ویژه (افزودن و حذف)</button><div class="accordion-panel"><p>کاربران را به عنوان مالک یا کاربر ویژه گروه اضافه/حذف می‌کند.</p><p><strong>مثال:</strong> <code>مالک @username</code> , <code>ویژه @username</code><br><code>حذف مالک @username</code> , <code>حذف ویژه @username</code></p></div></div>
+                        <div class="accordion-item"><button class="accordion-header"><i class="fas fa-chevron-left"></i> پاکسازی مالک / ویژه</button><div class="accordion-panel"><p>تمام لیست مالک یا ویژه را خالی می‌کند.</p><p><strong>مثال:</strong> <code>پاکسازی مالک</code> , <code>پاکسازی ویژه</code></p></div></div>
+                        <div class="accordion-item"><button class="accordion-header"><i class="fas fa-chevron-left"></i> بی نهایت (کیف پول و ماینر)</button><div class="accordion-panel"><p>کیف پول یا ماینر کاربر را بی‌نهایت می‌کند.</p><p><strong>مثال:</strong> <code>افزودن بی نهایت</code> (ریپلای) , <code>حذف بی نهایت</code><br><code>افزودن بی نهایت ماینر</code> , <code>حذف بی نهایت ماینر</code></p></div></div>
+                        <div class="accordion-item"><button class="accordion-header"><i class="fas fa-chevron-left"></i> تسویه همگانی / ریست بانک</button><div class="accordion-panel"><p>بدهی بانکی همه کاربران را صفر می‌کند یا بانک کاربر خاصی را ریست می‌کند.</p><p><strong>مثال:</strong> <code>تسویه همگانی</code> , <code>ریست بانک @username</code> , <code>ریست همگانی بانک</code></p></div></div>
+                        <div class="accordion-item"><button class="accordion-header"><i class="fas fa-chevron-left"></i> ریست گیم بات / ریست کارخانه</button><div class="accordion-panel"><p>داده‌های بازی یا کارخانه‌ها را ریست می‌کند.</p><p><strong>مثال:</strong> <code>ریست گیم بات</code> , <code>ریست کارخانه @username</code> , <code>ریست همه کارخانه ها</code></p></div></div>
+                        <div class="accordion-item"><button class="accordion-header"><i class="fas fa-chevron-left"></i> گروه ها / شارژ گروه / ترک گروه</button><div class="accordion-panel"><p>لیست گروه‌ها، شارژ اشتراک گروه و خروج با دلیل.</p><p><strong>مثال:</strong> <code>گروه ها</code> (در پیوی) , <code>شارژ گروه 1 3 روز</code> , <code>ترک گروه 2 3 علت بی‌فعالیتی</code></p></div></div>
+                        <div class="accordion-item"><button class="accordion-header"><i class="fas fa-chevron-left"></i> ارسال همگانی / پاکسازی گروه ها</button><div class="accordion-panel"><p>ارسال پیام از کانال به همه گروه‌ها و ترک گروه‌های کم‌فعالیت.</p><p><strong>مثال:</strong> <code>ارسال همگانی</code> (ریپلای روی پست کانال) , <code>پاکسازی گروه ها</code></p></div></div>
+                        <div class="accordion-item"><button class="accordion-header"><i class="fas fa-chevron-left"></i> مدیریت درخواست‌ها (تایید / رد)</button><div class="accordion-panel"><p>تأیید یا رد درخواست‌های عضویت (در پیوی).</p><p><strong>مثال:</strong> <code>درخواست ها</code> , <code>تایید 1 2</code> , <code>رد 3</code></p></div></div>
+                        <div class="accordion-item"><button class="accordion-header"><i class="fas fa-chevron-left"></i> بکاپ گیری / اجرای بکاپ / ذخیره گیم بات / ذخیره بانک</button><div class="accordion-panel"><p>تهیه و بازیابی فایل‌های پشتیبان.</p><p><strong>مثال:</strong> <code>بکاپ گیری</code> , <code>اجرای بکاپ</code> (ریبلی روی فایل) , <code>ذخیره گیم بات</code> , <code>ذخیره بانک</code></p></div></div>
+                    </div>
+
+                    <!-- گیم بات -->
+                    <div class="sub-content" id="guide-game" style="display: none;">
+                        <h2><i class="fas fa-gamepad"></i> راهنما گیم بات</h2>
+                        <div class="accordion-item"><button class="accordion-header"><i class="fas fa-chevron-left"></i> موجودی / گردونه / ماینر / جمع ماینر</button><div class="accordion-panel"><p>نمایش کیف پول، گردونه روزانه، وضعیت ماینر و جمع‌آوری سکه‌های ماینر.</p><p><strong>مثال:</strong> <code>موجودی</code> , <code>گردونه</code> , <code>ماینر</code> , <code>جمع ماینر</code></p></div></div>
+                        <div class="accordion-item"><button class="accordion-header"><i class="fas fa-chevron-left"></i> خرید ماینر / پروفیت</button><div class="accordion-panel"><p>ارتقای سطح ماینر و نمایش درآمد در واحدهای مختلف.</p><p><strong>مثال:</strong> <code>خرید ماینر</code> , <code>خرید ماینر 10</code> , <code>خرید حداکثر ماینر</code> , <code>پروفیت</code></p></div></div>
+                        <div class="accordion-item"><button class="accordion-header"><i class="fas fa-chevron-left"></i> پولداران / بانک / بانکداران</button><div class="accordion-panel"><p>لیست ثروتمندان، حساب بانکی و رتبه‌بندی بانکی.</p><p><strong>مثال:</strong> <code>پولداران</code> , <code>بانک</code> , <code>واریز 100هزار</code> , <code>برداشت 50هزار</code> , <code>وام</code> , <code>بدهی من</code> , <code>پرداخت بدهی</code> , <code>بانکداران</code></p></div></div>
+                        <div class="accordion-item"><button class="accordion-header"><i class="fas fa-chevron-left"></i> طلا (خرید / تبدیل / گردونه / انتقال)</button><div class="accordion-panel"><p>خرید طلا، تبدیل به تیل، گردونه طلا و انتقال به دیگران.</p><p><strong>مثال:</strong> <code>خرید طلا 2</code> , <code>تبدیل طلا 1</code> , <code>گردونه طلا</code> , <code>tgift 2 @user</code></p></div></div>
+                        <div class="accordion-item"><button class="accordion-header"><i class="fas fa-chevron-left"></i> کارخانه‌ها (راهنما / خرید / ارتقا / کارگر / جمع / پروفیت / لیست)</button><div class="accordion-panel"><p>سیستم کارخانه‌های آهن، غذا، نفت و طلا.</p><p><strong>مثال:</strong> <code>راهنمای کارخانه</code> , <code>کارخانه آهن</code> , <code>خرید کارخانه آهن</code> , <code>ارتقا کارخانه آهن</code> , <code>خرید کارگر آهن</code> , <code>جمع کارخانه آهن</code> , <code>پروفیت کارخانه آهن</code> , <code>لیست کارخانه ها</code> , <code>لیست کارخانه های من</code></p></div></div>
+                        <div class="accordion-item"><button class="accordion-header"><i class="fas fa-chevron-left"></i> شرط‌بندی‌ها (گل / شرط‌بندی / تاس / سنگ کاغذ قیچی / اسلات / رنگ / عدد)</button><div class="accordion-panel"><p>انواع بازی‌های شرط‌بندی با واحدهای مختلف.</p><p><strong>مثال:</strong> <code>گل راست 100تیل</code> , <code>شرط بندی 5هزار فرد</code> , <code>تاس 5 شرط 100تیل</code> , <code>سنگ 100تیل</code> , <code>اسلات 10هزار</code> , <code>رنگ قرمز شرط 200تیل</code> , <code>عدد 7 شرط 50تیل</code></p></div></div>
+                        <div class="accordion-item"><button class="accordion-header"><i class="fas fa-chevron-left"></i> رولت روسی / ساخت چالش / امتیاز چالش</button><div class="accordion-panel"><p>بازی رولت روسی دو نفره، چالش روزانه و جدول امتیازات.</p><p><strong>مثال:</strong> <code>شروع رولت روسی 5بیل</code> (ریبلی) , <code>ساخت چالش</code> , <code>چالش زوج 100هزار</code> , <code>امتیاز چالش</code></p></div></div>
+                        <div class="accordion-item"><button class="accordion-header"><i class="fas fa-chevron-left"></i> انتقال گروهی (gift / mgift)</button><div class="accordion-panel"><p>ارسال سکه یا سطح ماینر به یک یا چند کاربر.</p><p><strong>مثال:</strong> <code>gift 100هزار @user1 @user2</code> , <code>mgift 5 @user</code></p></div></div>
+                        <div class="accordion-item"><button class="accordion-header"><i class="fas fa-chevron-left"></i> شهروند و مافیا</button><div class="accordion-panel"><p>بازی گروهی مافیا ۱۰ نفره با نقش‌های کامل.</p><p><strong>مثال:</strong> <code>شروع شهروند و مافیا</code> ← <code>عضویت بازی</code> ← ... ← <code>شب</code> / <code>صبح</code></p></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- راهنمای ربات توکنی (جدید) -->
+            <div id="tokenGuide" style="display: none;">
+                <div class="content-box">
+                    <h2><i class="fas fa-key"></i> راهنمای ربات توکنی</h2>
+                    <div class="accordion-item"><button class="accordion-header"><i class="fas fa-chevron-left"></i> نصب و فعال‌سازی</button><div class="accordion-panel"><p>با فرستادن یکی از کلمات <code>فعال</code>، <code>نصب</code> یا <code>مالک</code> در گروه، ربات نصب و شما مالک می‌شوید.</p></div></div>
+                    <div class="accordion-item"><button class="accordion-header"><i class="fas fa-chevron-left"></i> راهنما</button><div class="accordion-panel"><p>با ارسال <code>راهنما</code> منوی اصلی راهنما را دریافت کنید. سپس بخش‌های مختلف را انتخاب کنید: <code>راهنمای مدیریت</code>، <code>راهنمای گیم بات</code>، <code>راهنمای سرگرمی</code>، <code>راهنمای استفاده از ربات</code>.</p></div></div>
+                    <div class="accordion-item"><button class="accordion-header"><i class="fas fa-chevron-left"></i> اخطارها</button><div class="accordion-panel"><p><strong>اخطار</strong> (ریپلای) → یک اخطار به کاربر اضافه می‌کند.<br><strong>حذف اخطار</strong> (ریپلای) → یک اخطار کم می‌کند.<br><strong>لیست اخطار</strong> → لیست اخطارها را نشان می‌دهد.<br><strong>تعداد اخطار X</strong> → سقف اخطار را تنظیم می‌کند (مثال: <code>تعداد اخطار 5</code>).</p></div></div>
+                    <div class="accordion-item"><button class="accordion-header"><i class="fas fa-chevron-left"></i> سکوت و بن</button><div class="accordion-panel"><p><strong>سکوت 120</strong> (ریپلای) → کاربر را ۱۲۰ ثانیه سکوت می‌کند.<br><strong>سکوت دائمی</strong> (ریپلای) → سکوت دائمی.<br><strong>حذف سکوت</strong> (ریپلای) → سکوت را برمی‌دارد.<br><strong>لیست سکوت</strong> → نمایش کاربران سکوت‌شده.<br><strong>پاکسازی سکوت</strong> → حذف همه سکوت‌ها.<br><strong>بن</strong> (ریپلای) → اخراج و بن دائم.<br><strong>آن بن</strong> (ریپلای) → رفع بن.</p></div></div>
+                    <div class="accordion-item"><button class="accordion-header"><i class="fas fa-chevron-left"></i> حذف پیام</button><div class="accordion-panel"><p><strong>حذف ۲۰</strong> → ۲۰ پیام آخر را حذف می‌کند. عدد قابل تغییر است.</p></div></div>
+                    <div class="accordion-item"><button class="accordion-header"><i class="fas fa-chevron-left"></i> تگ</button><div class="accordion-panel"><p><strong>تگ</strong> → همه اعضا را تگ می‌کند.<br><strong>تگ 10</strong> → فقط ۱۰ نفر را تگ می‌کند (قابل تنظیم).</p></div></div>
+                    <div class="accordion-item"><button class="accordion-header"><i class="fas fa-chevron-left"></i> تگ مالک</button><div class="accordion-panel"><p><code>مالک</code> → مالک گروه را تگ می‌کند.</p></div></div>
+                    <div class="accordion-item"><button class="accordion-header"><i class="fas fa-chevron-left"></i> قوانین و وضعیت</button><div class="accordion-panel"><p><strong>وضعیت</strong> یا <strong>قفل ها</strong> → نمایش وضعیت قوانین.<br><strong>قفل لینک</strong>، <strong>قفل فوروارد</strong>، ... → تغییر وضعیت قانون.<br><strong>خاموش همه</strong> / <strong>روشن همه</strong> → غیرفعال/فعال کردن همه قوانین.<br><strong>تنظیم اخطار لینک 2</strong> → حد اخطار برای آن قانون.<br><strong>تنظیم اخطار همه 3</strong> → حد اخطار برای همه قوانین.</p></div></div>
+                    <div class="accordion-item"><button class="accordion-header"><i class="fas fa-chevron-left"></i> سایلنت خودکار</button><div class="accordion-panel"><p><strong>حالت سایلنت روشن</strong> / <strong>خاموش</strong> → روشن/خاموش کردن سکوت خودکار.<br><strong>تایم سایلنت 90</strong> → مدت زمان سکوت خودکار (ثانیه).</p></div></div>
+                    <div class="accordion-item"><button class="accordion-header"><i class="fas fa-chevron-left"></i> سخنگو</button><div class="accordion-panel"><p><strong>سخنگو پرحرف روشن</strong> → ربات به هر پیامی که بشناسد پاسخ می‌دهد.<br><strong>سخنگو کم حرف روشن</strong> → فقط در صورت ریپلای به پیام ربات پاسخ می‌دهد.<br><strong>سخنگو خاموش</strong> → غیرفعال کردن کامل.<br>برای تغییر حالت از کلمات <code>روشن</code>/<code>خاموش</code> استفاده کنید.</p></div></div>
+                    <div class="accordion-item"><button class="accordion-header"><i class="fas fa-chevron-left"></i> حالت سختگیر</button><div class="accordion-panel"><p><strong>حالت سختگیر روشن</strong> → هر تخلف منجر به اخراج فوری می‌شود.<br><strong>خاموش</strong> → بازگشت به حالت عادی.</p></div></div>
+                    <div class="accordion-item"><button class="accordion-header"><i class="fas fa-chevron-left"></i> یادگیری</button><div class="accordion-panel"><p><strong>حالت یادگیری روشن</strong> / <strong>خاموش</strong> → فعال/غیرفعال کردن یادگیری.<br><strong>یادبگیر پاسخ</strong> (ریپلای روی پیام کاربر) → یاد دادن یک پاسخ.<br><strong>یادبگیر رندوم پاسخ۱ / پاسخ۲ / پاسخ۳</strong> (ریپلای) → یاد دادن چند پاسخ تصادفی.<br><strong>لیست یادگیری</strong> / <strong>حذف یادگیری : سلام</strong> → مدیریت.</p></div></div>
+                    <div class="accordion-item"><button class="accordion-header"><i class="fas fa-chevron-left"></i> آمار و پروفایل</button><div class="accordion-panel"><p><strong>آمارم</strong> → آمار خودتان.<br><strong>آمارش</strong> (ریپلای) → آمار کاربر مقابل.<br><strong>آمار</strong> (ریپلای) → آمار پیام‌های کاربر.<br><strong>آمار گروه</strong> → گزارش کلی گروه.<br><strong>پروفایل</strong> (خود یا ریپلای) → پروفایل کامل.<br><strong>اطلاعات گروه</strong> → اطلاعات و تنظیمات گروه.<br><strong>info</strong> (ریپلای) → اطلاعات فنی پیام.</p></div></div>
+                    <div class="accordion-item"><button class="accordion-header"><i class="fas fa-chevron-left"></i> دستورات مالک گروه</button><div class="accordion-panel"><p><strong>ثبت اصل علی</strong> (ریپلای) → نام اصلی کاربر.<br><strong>ثبت لقب سلطان</strong> (ریپلای) → لقب کاربر.<br><strong>حذف لقب</strong> / <strong>حذف اصل</strong> (ریپلای) → حذف.<br><strong>بکاپ گروه</strong> → دریافت فایل پشتیبان.<br><strong>انتقال اطلاعات c0ABC...</strong> → انتقال داده‌ها به گروه جدید.<br><strong>انتقال مالک</strong> (ریپلای) → واگذاری مالکیت.<br><strong>ری استارت گروه</strong> → ریست کامل داده‌های گروه.</p></div></div>
+                    <div class="accordion-item"><button class="accordion-header"><i class="fas fa-chevron-left"></i> ادمین‌های کمکی</button><div class="accordion-panel"><p><strong>افزودن ادمین</strong> (ریپلای) → ادمین کمکی.<br><strong>حذف ادمین</strong> (ریپلای) → حذف.<br><strong>لیست ادمین</strong> → نمایش.</p></div></div>
+                    <div class="accordion-item"><button class="accordion-header"><i class="fas fa-chevron-left"></i> قفل گروه</button><div class="accordion-panel"><p><strong>قفل گروه 120</strong> → گروه را ۱۲۰ ثانیه قفل می‌کند.<br><strong>باز کردن قفل گروه</strong> → بازکردن دستی.</p></div></div>
+                    <div class="accordion-item"><button class="accordion-header"><i class="fas fa-chevron-left"></i> فیلتر کلمات</button><div class="accordion-panel"><p><strong>افزودن فیلتر کلمه</strong> → اضافه کردن کلمه به لیست فیلتر.<br><strong>حذف فیلتر کلمه</strong> → حذف.<br><strong>لیست فیلتر</strong> → نمایش.</p></div></div>
+                    <div class="accordion-item"><button class="accordion-header"><i class="fas fa-chevron-left"></i> ویس</button><div class="accordion-panel"><p><strong>ویس متن مورد نظر</strong> → متن را به ویس تبدیل کرده و ارسال می‌کند. مثال: <code>ویس سلام خوبی</code></p></div></div>
+                    <div class="accordion-item"><button class="accordion-header"><i class="fas fa-chevron-left"></i> بانک</button><div class="accordion-panel"><p><strong>بانک</strong> → مشاهده حساب.<br><strong>واریز 5میل</strong> → واریز به بانک.<br><strong>برداشت 2بیل</strong> → برداشت.<br><strong>وام</strong> → دریافت وام (100 میلیارد سکه).<br><strong>بدهی من</strong> / <strong>پرداخت بدهی</strong>.<br><strong>تسویه همگانی</strong> (مالک) → صفر کردن بدهی همه.<br><strong>بانکداران</strong> → لیست حساب‌های برتر.</p></div></div>
+                    <div class="accordion-item"><button class="accordion-header"><i class="fas fa-chevron-left"></i> بازی و اقتصاد (گیم‌بات)</button><div class="accordion-panel"><p><strong>موجودی</strong> / <strong>گردونه</strong> / <strong>ماینر</strong> / <strong>جمع ماینر</strong><br><strong>خرید ماینر</strong> / <strong>خرید ماینر 5</strong> / <strong>حداکثر</strong><br><strong>پروفیت</strong><br><strong>شرط بندی 5000 فرد</strong> → شرط‌بندی زوج/فرد.<br><strong>سنگ 1000</strong> / <strong>کاغذ 2000</strong> / <strong>قیچی 5000</strong> → سنگ‌کاغذ‌قیچی.<br><strong>gift 10000</strong> (ریپلای) → انتقال سکه.<br><strong>mgift 2</strong> (ریپلای) → انتقال سطح ماینر.<br><strong>پولداران</strong><br><strong>افزودن بی نهایت</strong> / <strong>حذف بی نهایت</strong> (مالک) → بی‌نهایت کردن کیف پول.<br><strong>ریست گیم بات</strong> (مالک) → ریست داده‌های بازی.</p></div></div>
+                    <div class="accordion-item"><button class="accordion-header"><i class="fas fa-chevron-left"></i> اسلات و گل یا پوچ و رولت</button><div class="accordion-panel"><p><strong>اسلات 10هزار</strong> → چرخاندن اسلات.<br><strong>گل راست 100تیل</strong> → بازی گل یا پوچ.<br><strong>شروع رولت روسی 5بیل</strong> (ریپلای) → بازی دو نفره.<br><strong>شلیک</strong> → در نوبت خود شلیک کنید.<br><strong>پایان رولت روسی</strong> → لغو بازی و بازگشت مبلغ.</p></div></div>
+                    <div class="accordion-item"><button class="accordion-header"><i class="fas fa-chevron-left"></i> تفریحی</button><div class="accordion-panel"><p><strong>چالش</strong> → چالش تصادفی.<br><strong>انگیزشی</strong> → جمله انگیزشی.<br><strong>شعر عاشقانه</strong> → شعر عاشقانه.<br><strong>جوک</strong> → جوک بامزه.</p></div></div>
+                    <div class="accordion-item"><button class="accordion-header"><i class="fas fa-chevron-left"></i> کیبورد خصوصی</button><div class="accordion-panel"><p>در پیوی ربات، دکمه‌های گروه‌های من، اطلاعات من و پشتیبانی نمایش داده می‌شود (دستور <code>/start</code>).</p></div></div>
+                    <div class="accordion-item"><button class="accordion-header"><i class="fas fa-chevron-left"></i> پنل مخفی مدیریت (iran)</button><div class="accordion-panel"><p>در پیوی، دستور <code>/iran</code> پنل مدیریت پیشرفته را فعال می‌کند (مخصوص مالک ربات). شامل: آیدی عددی، ارسال همگانی، مدیریت گروه‌های فعال و غیرفعال، حذف/ریست گروه.</p></div></div>
+                </div>
+            </div>
+
+            <!-- خرید فایل ربات -->
+            <div id="buyContent" style="display: none;">
+                <div class="content-box">
+                    <h2><i class="fas fa-file-archive"></i> خرید فایل ربات</h2>
+                    <p>فایل سورس ربات با تمام امکانات آمادهٔ نصب روی سرور شما.<br>قیمت: <strong>۴۹۰,۰۰۰ تومان</strong><br>پس از خرید، لینک دانلود و راهنمای نصب ارسال می‌شود.</p>
+                    <a href="#" class="btn"><i class="fas fa-credit-card"></i> خرید مستقیم</a>
+                </div>
+            </div>
+
+            <!-- سفارش پروژه -->
+            <div id="customContent" style="display: none;">
+                <div class="content-box">
+                    <h2><i class="fas fa-tools"></i> سفارش پروژه</h2>
+                    <p>ربات اختصاصی متناسب با نیاز شما ساخته می‌شود.<br>برای ثبت سفارش، به آیدی زیر در روبیکا پیام دهید.</p>
+                    <p style="direction: ltr; margin-top: 1rem;">🆔 @DatafarPro_Admin</p>
+                    <a href="#" class="btn"><i class="fas fa-paper-plane"></i> ارسال پیام در روبیکا</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function isMobile() { return window.innerWidth <= 768; }
+
+        const wrapper = document.getElementById('contentWrapper');
+        const placeholderContent = document.getElementById('placeholderContent');
+        const guideContent = document.getElementById('guideContent');
+        const tokenGuide = document.getElementById('tokenGuide');
+        const buyContent = document.getElementById('buyContent');
+        const customContent = document.getElementById('customContent');
+        const mainNavLinks = document.querySelectorAll('.nav a');
+
+        function hideAllSections() {
+            placeholderContent.style.display = 'none';
+            guideContent.style.display = 'none';
+            tokenGuide.style.display = 'none';
+            buyContent.style.display = 'none';
+            customContent.style.display = 'none';
+        }
+
+        function resetGuideTabs() {
+            const subTabs = document.querySelectorAll('.guide-subnav .sub-tab');
+            const subContents = document.querySelectorAll('.sub-content');
+            subTabs.forEach(tab => tab.classList.remove('active'));
+            subContents.forEach(content => content.style.display = 'none');
+            const firstTab = subTabs[0];
+            if (firstTab) {
+                firstTab.classList.add('active');
+                const targetId = firstTab.getAttribute('data-guide');
+                const target = document.getElementById('guide-' + targetId);
+                if (target) target.style.display = 'block';
+            }
+        }
+
+        function removeActiveMainNav() {
+            mainNavLinks.forEach(link => link.classList.remove('active'));
+        }
+
+        function triggerAnimation() {
+            if (isMobile()) {
+                wrapper.style.transition = 'transform 0.5s, opacity 0.5s';
+                wrapper.classList.add('mobile-effect');
+                setTimeout(() => {
+                    wrapper.style.transition = 'transform 0.5s, opacity 0.5s';
+                    wrapper.classList.remove('mobile-effect');
+                    wrapper.classList.add('reset');
+                    setTimeout(() => wrapper.classList.remove('reset'), 500);
+                }, 400);
+            } else {
+                wrapper.classList.add('rotate-zoom');
+                setTimeout(() => wrapper.classList.remove('rotate-zoom'), 800);
+            }
+        }
+
+        mainNavLinks.forEach(link => {
+            link.addEventListener('click', function (e) {
+                e.preventDefault();
+                const page = this.getAttribute('data-page');
+                triggerAnimation();
+                setTimeout(() => {
+                    hideAllSections();
+                    removeActiveMainNav();
+                    this.classList.add('active');
+                    if (page === 'guide') {
+                        guideContent.style.display = 'block';
+                        resetGuideTabs();
+                    } else if (page === 'token') {
+                        tokenGuide.style.display = 'block';
+                    } else if (page === 'buy') {
+                        buyContent.style.display = 'block';
+                    } else if (page === 'custom') {
+                        customContent.style.display = 'block';
+                    }
+                }, isMobile() ? 200 : 250);
+            });
+        });
+
+        document.getElementById('brandLogo').addEventListener('click', function () {
+            triggerAnimation();
+            setTimeout(() => {
+                hideAllSections();
+                removeActiveMainNav();
+                placeholderContent.style.display = 'block';
+            }, isMobile() ? 200 : 250);
+        });
+
+        // Accordion toggle in all sections
+        document.querySelectorAll('.content-box').forEach(box => {
+            box.addEventListener('click', function (e) {
+                const header = e.target.closest('.accordion-header');
+                if (!header) return;
+                header.classList.toggle('active');
+                const panel = header.nextElementSibling;
+                if (panel.style.maxHeight) {
+                    panel.style.maxHeight = null;
+                } else {
+                    panel.style.maxHeight = panel.scrollHeight + 'px';
+                }
+            });
+        });
+
+        // Guide sub-tabs
+        const subTabs = document.querySelectorAll('.guide-subnav .sub-tab');
+        subTabs.forEach(tab => {
+            tab.addEventListener('click', function (e) {
+                e.preventDefault();
+                subTabs.forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                const guideKey = this.getAttribute('data-guide');
+                document.querySelectorAll('.sub-content').forEach(div => div.style.display = 'none');
+                const target = document.getElementById('guide-' + guideKey);
+                if (target) target.style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>
