@@ -1,16 +1,13 @@
-## Hi there 👋
+# Hi there 👋
 
-<!--
-**gorji4243-stack/gorji4243-stack** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
+I'm a Full-Stack Developer with a strong interest in software development and Artificial Intelligence.
 
-Here are some ideas to get you started:
+### Skills
 
-- 🔭 I’m currently working on ...
-- 🌱 I’m currently learning ...
-- 👯 I’m looking to collaborate on ...
-- 🤔 I’m looking for help with ...
-- 💬 Ask me about ...
-- 📫 How to reach me: ...
-- 😄 Pronouns: ...
-- ⚡ Fun fact: ...
--->
+- Frontend: HTML, CSS, JavaScript
+- Backend: PHP, Python, Java
+- Specialized in: Artificial Intelligence
+
+I'm currently working on personal projects and continuously improving my skills in AI and web development.
+
+Feel free to reach out if you have any questions about PHP, JavaScript, Python, or AI-related topics.
